@@ -1,0 +1,95 @@
+<html>
+<head>
+    <title>Html-Qrcode Demo</title>
+    <link rel="stylesheet" href="style.css">
+<body>
+    <div id="logo"></div>
+    </br></br>
+    <div id="qr-reader" style="width:500px"></div>
+    <div id="qr-reader-results"></div>
+    <button id="export-csv" onclick="exportCSV()" type="button">Export saved results to CSV</button>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.0.3/html5-qrcode.min.js" integrity="sha512-uOj9C1++KO/GY58nW0CjDiUjLKWQG4yB/NJMj3PtJNmFA52Hg56lojRtvBpLgQyVByUD+1M3M/1tKdoGDKUBAQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    function docReady(fn) {
+        // see if DOM is already available
+        if (document.readyState === "complete"
+            || document.readyState === "interactive") {
+            // call on next available tick
+            setTimeout(fn, 1);
+        } else {
+            document.addEventListener("DOMContentLoaded", fn);
+        }
+    }
+
+    docReady(function () {
+        var resultContainer = document.getElementById('qr-reader-results');
+        var lastResult, countResults = 0;
+        function onScanSuccess(decodedText, decodedResult) {
+            
+            var result = JSON.parse(decodedText.replace(/(\r\n|\n|\r|\t|0|-)/gm, ""));
+            var valid;
+
+            // switch(result.Test) {
+            //     case "Passed": valid = true; break;
+            //     case "Failed": valid = true; break;
+            //     default: valid = false; break;
+            // }
+
+            // if(valid == false) {
+            //     window.alert("Invalid QR Code");
+            //     return;
+            // }
+
+            if (decodedText !== lastResult) {
+                ++countResults;
+                lastResult = decodedText;
+                // Handle on success condition with the decoded message.
+                window.alert("Result: " + result.Test);
+                var store = [];
+                store.push(`"${result.Test}"`);
+                store.push(`"${result.DeviceID}"`);
+                store.push(`"${result.MouthPieceID}"`);
+                localStorage.setItem(countResults, store);
+                console.log(localStorage);
+            }
+        }
+
+        var html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", { fps: 40, qrbox: 450 });
+        html5QrcodeScanner.render(onScanSuccess);
+    });
+
+    function exportCSV() {
+
+        var storLength = localStorage.length;
+        var index;
+        var csvRows = [];
+        csvRows.push('Test,DeviceID,MouthPieceID');
+
+        for(index = 1; index <= storLength; index++) {
+            var item = localStorage.getItem(index);
+
+            csvRows.push(item);
+        }
+
+        var csvData = csvRows.join('\n');
+
+        downloadCSV(csvData);
+
+    }
+
+    function downloadCSV(data) {
+        var blob = new Blob([data], { type: 'text/csv'});
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'results.csv');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+</script>
+</head>
+</html>

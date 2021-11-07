@@ -1,0 +1,35 @@
+body {
+
+    background-color: black;
+
+}
+
+#logo {
+
+    background-image: url(examin-logo.png);
+    width: 300px;
+    height: 86px;
+    margin: auto;
+
+}
+
+#qr-reader {
+
+    margin: auto;
+
+}
+
+#qr-reader-result {
+
+    margin: auto;
+
+}
+
+#export-csv {
+
+    margin-top: 20px;
+    margin-left: 30%;
+    width: 40%;
+    padding: 10px;
+
+}
